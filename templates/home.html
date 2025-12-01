@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Product Ad Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <h2>🎨 Logoipsum</h2>
+            <p>Build Awesome</p>
+        </div>
+        <nav>
+            <a href="/" class="nav-item active">🏠 Home</a>
+            <a href="#" class="nav-item">🎨 Creative Tools</a>
+            <a href="#" class="nav-item">📊 My Ads</a>
+            <a href="#" class="nav-item">⬆️ Upgrade</a>
+            <a href="#" class="nav-item">👤 Profile</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Creative AI Tools</h1>
+        </div>
+
+        <div class="tools-grid">
+            <!-- Tool 1: Product Images -->
+            <div class="tool-card">
+                <div class="tool-icon">📸</div>
+                <h3>AI Products Images</h3>
+                <p>Generate high-quality, professional product images instantly with AI.</p>
+                <a href="/tool1" class="btn-primary">Create Now</a>
+                <div class="tool-preview">
+                    <img src="https://via.placeholder.com/200x150/ff6b35/ffffff?text=Product+Images" alt="Product Images">
+                </div>
+            </div>
+
+            <!-- Tool 2: Product Video -->
+            <div class="tool-card">
+                <div class="tool-icon">🎬</div>
+                <h3>AI Products Video</h3>
+                <p>Create engaging product showcase videos using AI.</p>
+                <a href="/tool2" class="btn-primary">Create Now</a>
+                <div class="tool-preview">
+                    <img src="https://via.placeholder.com/200x150/f7931e/ffffff?text=Product+Video" alt="Product Video">
+                </div>
+            </div>
+
+            <!-- Tool 3: Product with Avatar -->
+            <div class="tool-card">
+                <div class="tool-icon">👤</div>
+                <h3>AI Products With Avatar</h3>
+                <p>Bring your products to life with AI avatars.</p>
+                <a href="/tool3" class="btn-primary">Create Now</a>
+                <div class="tool-preview">
+                    <img src="https://via.placeholder.com/200x150/1cb5e0/ffffff?text=Avatar+Product" alt="Avatar Product">
+                </div>
+            </div>
+        </div>
+
+        <!-- My Ads Section -->
+        <div class="my-ads-section">
+            <h2>My Ads</h2>
+            <div class="ads-grid" id="myAdsGrid">
+                <p class="no-ads">No ads generated yet. Create your first ad above! 🚀</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

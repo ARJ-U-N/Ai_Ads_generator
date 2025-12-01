@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Product Avatar Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <h2>🎨 Logoipsum</h2>
+            <p>Build Awesome</p>
+        </div>
+        <nav>
+            <a href="/" class="nav-item">🏠 Home</a>
+            <a href="#" class="nav-item active">🎨 Creative Tools</a>
+            <a href="#" class="nav-item">📊 My Ads</a>
+            <a href="#" class="nav-item">⬆️ Upgrade</a>
+            <a href="#" class="nav-item">👤 Profile</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <a href="/" class="back-btn">← Back</a>
+            <h1>AI Product Avatar Image & Video Generator</h1>
+        </div>
+
+        <div class="tool-container">
+            <div class="input-section">
+                <h2>1. Enter Product Description</h2>
+                <textarea 
+                    id="productDescription" 
+                    placeholder="Example: Orange juice can"
+                    rows="3"
+                ></textarea>
+
+                <h2>2. Select Avatar</h2>
+                <div class="avatar-grid">
+                    <label class="avatar-option">
+                        <input type="radio" name="avatar" value="1" checked>
+                        <div class="avatar-card">
+                            <div class="avatar-placeholder">👨‍💼</div>
+                            <span>Avatar 1</span>
+                        </div>
+                    </label>
+                    <label class="avatar-option">
+                        <input type="radio" name="avatar" value="2">
+                        <div class="avatar-card">
+                            <div class="avatar-placeholder">👔</div>
+                            <span>Avatar 2</span>
+                        </div>
+                    </label>
+                    <label class="avatar-option">
+                        <input type="radio" name="avatar" value="3">
+                        <div class="avatar-card">
+                            <div class="avatar-placeholder">👨‍💻</div>
+                            <span>Avatar 3</span>
+                        </div>
+                    </label>
+                    <label class="avatar-option">
+                        <input type="radio" name="avatar" value="4">
+                        <div class="avatar-card">
+                            <div class="avatar-placeholder">👩‍💼</div>
+                            <span>Avatar 4</span>
+                        </div>
+                    </label>
+                    <label class="avatar-option">
+                        <input type="radio" name="avatar" value="5">
+                        <div class="avatar-card">
+                            <div class="avatar-placeholder">👩</div>
+                            <span>Avatar 5</span>
+                        </div>
+                    </label>
+                    <label class="avatar-option">
+                        <input type="radio" name="avatar" value="6">
+                        <div class="avatar-card">
+                            <div class="avatar-placeholder">👩‍🦰</div>
+                            <span>Avatar 6</span>
+                        </div>
+                    </label>
+                </div>
+
+                <button id="generateBtn" class="btn-primary btn-large">
+                    👤 Generate Avatar Product
+                </button>
+
+                <div id="loadingIndicator" class="loading hidden">
+                    <div class="spinner"></div>
+                    <p>Generating image and video... (3-5 minutes)</p>
+                </div>
+            </div>
+
+            <div class="result-section">
+                <h2>Generated Result</h2>
+                <div id="resultContainer" class="result-container">
+                    <p class="placeholder-text">Your avatar product will appear here</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('generateBtn').addEventListener('click', async function() {
+            const description = document.getElementById('productDescription').value;
+            const avatarId = document.querySelector('input[name="avatar"]:checked').value;
+
+            if (!description.trim()) {
+                alert('Please enter a product description');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loadingIndicator').classList.remove('hidden');
+            document.getElementById('generateBtn').disabled = true;
+
+            try {
+                const response = await fetch('/api/generate-avatar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        avatar_id: avatarId, 
+                        description: description,
+                        size: "1024x1024"
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const resultContainer = document.getElementById('resultContainer');
+                    resultContainer.innerHTML = `
+                        <div class="avatar-results">
+                            <div class="result-item">
+                                <h3>Image</h3>
+                                <img src="data:image/png;base64,${data.image}" alt="Avatar Product">
+                                <button onclick="downloadImage('${data.image}')" class="btn-secondary">📥 Download Image</button>
+                            </div>
+                            <div class="result-item">
+                                <h3>Video (5 seconds)</h3>
+                                <video controls autoplay loop>
+                                    <source src="data:video/mp4;base64,${data.video}" type="video/mp4">
+                                </video>
+                                <button onclick="downloadVideo('${data.video}')" class="btn-secondary">📥 Download Video</button>
+                            </div>
+                        </div>
+                        ${data.note ? `<p class="note">${data.note}</p>` : ''}
+                    `;
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error generating avatar product: ' + error.message);
+            } finally {
+                document.getElementById('loadingIndicator').classList.add('hidden');
+                document.getElementById('generateBtn').disabled = false;
+            }
+        });
+
+        function downloadImage(base64Data) {
+            const link = document.createElement('a');
+            link.href = 'data:image/png;base64,' + base64Data;
+            link.download = 'avatar-product-image.png';
+            link.click();
+        }
+
+        function downloadVideo(base64Data) {
+            const link = document.createElement('a');
+            link.href = 'data:video/mp4;base64,' + base64Data;
+            link.download = 'avatar-product-video.mp4';
+            link.click();
+        }
+    </script>
+</body>
+</html>

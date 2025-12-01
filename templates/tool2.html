@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Product Video Animator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <h2>🎨 Logoipsum</h2>
+            <p>Build Awesome</p>
+        </div>
+        <nav>
+            <a href="/" class="nav-item">🏠 Home</a>
+            <a href="#" class="nav-item active">🎨 Creative Tools</a>
+            <a href="#" class="nav-item">📊 My Ads</a>
+            <a href="#" class="nav-item">⬆️ Upgrade</a>
+            <a href="#" class="nav-item">👤 Profile</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <a href="/" class="back-btn">← Back</a>
+            <h1>AI Product Video Animator</h1>
+        </div>
+
+        <div class="tool-container">
+            <div class="input-section">
+                <div class="info-box">
+                    ℹ️ This tool animates images generated from <a href="/tool1">Tool 1</a>
+                </div>
+
+                <h2>AI-Generated Image</h2>
+                <div id="imagePreview" class="image-preview">
+                    <p class="placeholder-text">Load image from Tool 1</p>
+                </div>
+
+                <button id="animateBtn" class="btn-primary btn-large" disabled>
+                    🎬 Animate to 5-Second Video
+                </button>
+
+                <div id="loadingIndicator" class="loading hidden">
+                    <div class="spinner"></div>
+                    <p>Creating animation... (2-3 minutes)</p>
+                </div>
+            </div>
+
+            <div class="result-section">
+                <h2>Generated Video</h2>
+                <div id="resultContainer" class="result-container">
+                    <p class="placeholder-text">Your animated video will appear here</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load last generated image
+        window.addEventListener('load', function() {
+            const lastImage = localStorage.getItem('lastGeneratedImage');
+            if (lastImage) {
+                const preview = document.getElementById('imagePreview');
+                preview.innerHTML = `<img src="data:image/png;base64,${lastImage}" alt="Product Image">`;
+                document.getElementById('animateBtn').disabled = false;
+            } else {
+                const preview = document.getElementById('imagePreview');
+                preview.innerHTML = `
+                    <p class="placeholder-text">No image found. <a href="/tool1">Generate one first</a></p>
+                `;
+            }
+        });
+
+        document.getElementById('animateBtn').addEventListener('click', async function() {
+            const lastImage = localStorage.getItem('lastGeneratedImage');
+            
+            if (!lastImage) {
+                alert('Please generate an image in Tool 1 first');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loadingIndicator').classList.remove('hidden');
+            document.getElementById('animateBtn').disabled = true;
+
+            try {
+                const response = await fetch('/api/animate-image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ai_image: lastImage })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const resultContainer = document.getElementById('resultContainer');
+                    resultContainer.innerHTML = `
+                        <video controls autoplay loop>
+                            <source src="data:video/mp4;base64,${data.video}" type="video/mp4">
+                        </video>
+                        <p class="note">${data.note || ''}</p>
+                        <div class="result-actions">
+                            <button onclick="downloadVideo('${data.video}')" class="btn-secondary">📥 Download</button>
+                        </div>
+                    `;
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error animating image: ' + error.message);
+            } finally {
+                document.getElementById('loadingIndicator').classList.add('hidden');
+                document.getElementById('animateBtn').disabled = false;
+            }
+        });
+
+        function downloadVideo(base64Data) {
+            const link = document.createElement('a');
+            link.href = 'data:video/mp4;base64,' + base64Data;
+            link.download = 'product-video.mp4';
+            link.click();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Product Image Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <h2>🎨 Logoipsum</h2>
+            <p>Build Awesome</p>
+        </div>
+        <nav>
+            <a href="/" class="nav-item">🏠 Home</a>
+            <a href="#" class="nav-item active">🎨 Creative Tools</a>
+            <a href="#" class="nav-item">📊 My Ads</a>
+            <a href="#" class="nav-item">⬆️ Upgrade</a>
+            <a href="#" class="nav-item">👤 Profile</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <a href="/" class="back-btn">← Back</a>
+            <h1>AI Product Image Generator</h1>
+        </div>
+
+        <div class="tool-container">
+            <div class="input-section">
+                <h2>1. Enter Product Description</h2>
+                <textarea 
+                    id="productDescription" 
+                    placeholder="Example: Orange juice can with dynamic splash effects, vibrant colors, fresh oranges floating around"
+                    rows="4"
+                ></textarea>
+
+                <h2>2. Select Image Size</h2>
+                <div class="size-selector">
+                    <label class="size-option">
+                        <input type="radio" name="size" value="1024x1024" checked>
+                        <span>Square (1024x1024)</span>
+                    </label>
+                    <label class="size-option">
+                        <input type="radio" name="size" value="1024x768">
+                        <span>Landscape (1024x768)</span>
+                    </label>
+                    <label class="size-option">
+                        <input type="radio" name="size" value="768x1024">
+                        <span>Portrait (768x1024)</span>
+                    </label>
+                </div>
+
+                <button id="generateBtn" class="btn-primary btn-large">
+                    🎨 Generate Image
+                </button>
+
+                <div id="loadingIndicator" class="loading hidden">
+                    <div class="spinner"></div>
+                    <p>Generating your product image... (30-60 seconds)</p>
+                </div>
+            </div>
+
+            <div class="result-section">
+                <h2>Generated Result</h2>
+                <div id="resultContainer" class="result-container">
+                    <p class="placeholder-text">Your generated image will appear here</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+    document.getElementById('generateBtn').addEventListener('click', async function() {
+        const description = document.getElementById('productDescription').value;
+        const size = document.querySelector('input[name="size"]:checked').value;
+
+        if (!description.trim()) {
+            alert('Please enter a product description');
+            return;
+        }
+
+        // Show loading
+        document.getElementById('loadingIndicator').classList.remove('hidden');
+        document.getElementById('generateBtn').disabled = true;
+        document.getElementById('generateBtn').textContent = 'Generating...';
+
+        try {
+            console.log('📤 Sending request to API...');
+            
+            const response = await fetch('/api/generate-image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ description, size })
+            });
+
+            console.log('📥 Response received:', response.status);
+            const data = await response.json();
+            console.log('📦 Response data:', data);
+
+            if (data.success && data.image) {
+                // Display image
+                const resultContainer = document.getElementById('resultContainer');
+                resultContainer.innerHTML = `
+                    <img src="data:image/png;base64,${data.image}" alt="Generated Product">
+                    <div class="result-actions">
+                        <button onclick="downloadImage('${data.image}')" class="btn-secondary">📥 Download</button>
+                        <a href="/tool2" class="btn-primary">🎬 Animate This</a>
+                    </div>
+                `;
+                
+                // Save to localStorage for Tool 2
+                localStorage.setItem('lastGeneratedImage', data.image);
+                
+                console.log('✅ Image displayed successfully!');
+            } else {
+                // Better error handling
+                let errorMsg = 'Unknown error occurred';
+                
+                if (data.error) {
+                    if (typeof data.error === 'string') {
+                        errorMsg = data.error;
+                    } else if (data.error.error) {
+                        errorMsg = data.error.error;
+                    } else {
+                        errorMsg = JSON.stringify(data.error);
+                    }
+                }
+                
+                console.error('❌ Error:', errorMsg);
+                alert('Error generating image:\n\n' + errorMsg);
+                
+                // Show error in result container too
+                const resultContainer = document.getElementById('resultContainer');
+                resultContainer.innerHTML = `
+                    <div style="color: #ff6b6b; padding: 20px; text-align: center;">
+                        <p style="font-size: 18px; margin-bottom: 10px;">❌ Generation Failed</p>
+                        <p style="font-size: 14px; opacity: 0.8;">${errorMsg}</p>
+                        <button onclick="location.reload()" class="btn-secondary" style="margin-top: 20px;">Try Again</button>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('❌ Fetch error:', error);
+            alert('Error connecting to API:\n\n' + error.message + '\n\nMake sure:\n1. Colab notebook is running\n2. Flask server is running\n3. API URL is correct in app.py');
+            
+            const resultContainer = document.getElementById('resultContainer');
+            resultContainer.innerHTML = `
+                <div style="color: #ff6b6b; padding: 20px; text-align: center;">
+                    <p style="font-size: 18px; margin-bottom: 10px;">❌ Connection Error</p>
+                    <p style="font-size: 14px; opacity: 0.8;">${error.message}</p>
+                    <ul style="text-align: left; margin-top: 15px; font-size: 13px;">
+                        <li>✓ Check if Colab notebook is running</li>
+                        <li>✓ Check if ngrok URL is correct</li>
+                        <li>✓ Check console for details (F12)</li>
+                    </ul>
+                    <button onclick="location.reload()" class="btn-secondary" style="margin-top: 20px;">Try Again</button>
+                </div>
+            `;
+        } finally {
+            document.getElementById('loadingIndicator').classList.add('hidden');
+            document.getElementById('generateBtn').disabled = false;
+            document.getElementById('generateBtn').textContent = '🎨 Generate Image';
+        }
+    });
+
+    function downloadImage(base64Data) {
+        const link = document.createElement('a');
+        link.href = 'data:image/png;base64,' + base64Data;
+        link.download = 'product-image-' + Date.now() + '.png';
+        link.click();
+    }
+</script>
+
+</body>
+</html>
