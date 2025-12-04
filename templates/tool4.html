@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool 4 - Image Enhancement | AI Product Ad Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            color: #333;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9ff;
+        }
+
+        .file-upload-area:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+        }
+
+        .file-upload-area.dragover {
+            border-color: #764ba2;
+            background: #e8ebff;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 120px;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .slider-container {
+            margin-top: 10px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            display: inline-block;
+            margin-left: 10px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .generate-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .generate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-image {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .download-btn {
+            width: 100%;
+            background: #10b981;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+            display: none;
+            transition: background 0.3s;
+        }
+
+        .download-btn:hover {
+            background: #059669;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .info-box {
+            background: #e8f4ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">🎨</div>
+                <h1>AI Product Ad Generator</h1>
+            </div>
+            <a href="/" class="back-btn">← Back to Home</a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Input Section -->
+            <div class="card">
+                <h2>🖼️ Tool 4: Product Image Enhancement</h2>
+                
+                <div class="info-box">
+                    <strong>✨ Transform your basic product photo into ad-quality!</strong><br>
+                    Upload a simple product image, and we'll enhance it with professional lighting, clean background, and dynamic effects while keeping your exact product intact.
+                </div>
+
+                <div class="error-message" id="errorMessage"></div>
+
+                <!-- File Upload -->
+                <div class="form-group">
+                    <label>1. Upload Your Product Image</label>
+                    <div class="file-upload-area" id="fileUploadArea">
+                        <div class="upload-icon">📤</div>
+                        <p><strong>Click to upload</strong> or drag and drop</p>
+                        <p style="font-size: 14px; color: #888; margin-top: 5px;">PNG, JPG, WEBP (Max 10MB)</p>
+                    </div>
+                    <input type="file" id="fileInput" class="file-input" accept="image/*">
+                    <img id="previewImage" class="preview-image" alt="Preview">
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label>2. Describe Your Product</label>
+                    <textarea 
+                        id="description" 
+                        placeholder="e.g., red and teal hoodie, luxury perfume bottle, modern smartphone, coffee mug, etc."
+                    >professional product photography</textarea>
+                    <p style="font-size: 12px; color: #888; margin-top: 5px;">
+                        💡 Tip: Describe the actual product in your image for best results
+                    </p>
+                </div>
+
+                <!-- Strength Slider -->
+                <div class="form-group">
+                    <label>3. Enhancement Strength</label>
+                    <div class="slider-container">
+                        <input 
+                            type="range" 
+                            id="strengthSlider" 
+                            class="slider" 
+                            min="0" 
+                            max="100" 
+                            value="40"
+                        >
+                        <span class="slider-value" id="strengthValue">0.40</span>
+                    </div>
+                    <p style="font-size: 13px; color: #888; margin-top: 8px; line-height: 1.5;">
+                        💡 <strong>Recommended: 0.3-0.5</strong> to preserve your product<br>
+                        • <strong>0.3</strong> = Light enhancement (subtle lighting/background)<br>
+                        • <strong>0.4</strong> = Balanced (good for most products)<br>
+                        • <strong>0.5</strong> = More creative (adds splash/motion effects)<br>
+                        ⚠️ Higher values may change the product
+                    </p>
+                </div>
+
+                <!-- Image Size -->
+                <div class="form-group">
+                    <label>4. Output Size</label>
+                    <select id="sizeSelect">
+                        <option value="1024x1024" selected>Square (1024x1024)</option>
+                        <option value="1024x768">Landscape (1024x768)</option>
+                        <option value="768x1024">Portrait (768x1024)</option>
+                    </select>
+                </div>
+
+                <!-- Generate Button -->
+                <button class="generate-btn" id="generateBtn">
+                    <span>✨ Enhance Image</span>
+                </button>
+            </div>
+
+            <!-- Result Section -->
+            <div class="card">
+                <h2>📸 Enhanced Result</h2>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p style="color: #667eea; font-weight: 600;">Enhancing your product image...</p>
+                    <p style="color: #888; font-size: 14px; margin-top: 10px;">This takes 15-25 seconds</p>
+                </div>
+
+                <img id="resultImage" class="result-image" alt="Enhanced Image">
+                
+                <button class="download-btn" id="downloadBtn">
+                    💾 Download Enhanced Image
+                </button>
+
+                <div style="text-align: center; color: #888; margin-top: 20px;" id="placeholderText">
+                    Your ad-quality enhanced image will appear here
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewImage = document.getElementById('previewImage');
+        const descriptionInput = document.getElementById('description');
+        const strengthSlider = document.getElementById('strengthSlider');
+        const strengthValue = document.getElementById('strengthValue');
+        const sizeSelect = document.getElementById('sizeSelect');
+        const generateBtn = document.getElementById('generateBtn');
+        const loading = document.getElementById('loading');
+        const resultImage = document.getElementById('resultImage');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const placeholderText = document.getElementById('placeholderText');
+
+        let uploadedImageBase64 = null;
+
+        // File upload click
+        fileUploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // File input change
+        fileInput.addEventListener('change', handleFileSelect);
+
+        // Drag and drop
+        fileUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.add('dragover');
+        });
+
+        fileUploadArea.addEventListener('dragleave', () => {
+            fileUploadArea.classList.remove('dragover');
+        });
+
+        fileUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileSelect();
+            }
+        });
+
+        // Handle file selection
+        function handleFileSelect() {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showError('Please upload a valid image file (PNG, JPG, WEBP)');
+                return;
+            }
+
+            // Validate file size (10MB max)
+            if (file.size > 10 * 1024 * 1024) {
+                showError('File size must be less than 10MB');
+                return;
+            }
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                previewImage.style.display = 'block';
+                uploadedImageBase64 = e.target.result;
+                
+                // Update upload area
+                fileUploadArea.innerHTML = `
+                    <div class="upload-icon">✅</div>
+                    <p><strong>Image uploaded!</strong></p>
+                    <p style="font-size: 14px; color: #888;">Click to change</p>
+                `;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Strength slider
+        strengthSlider.addEventListener('input', () => {
+            const value = (strengthSlider.value / 100).toFixed(2);
+            strengthValue.textContent = value;
+        });
+
+        // Generate button
+        generateBtn.addEventListener('click', async () => {
+            // Validate input
+            if (!uploadedImageBase64) {
+                showError('Please upload an image first!');
+                return;
+            }
+
+            const description = descriptionInput.value.trim();
+            const strength = parseFloat(strengthSlider.value) / 100;
+            const size = sizeSelect.value;
+
+            if (!description) {
+                showError('Please describe your product!');
+                return;
+            }
+
+            // Show loading
+            errorMessage.style.display = 'none';
+            loading.style.display = 'block';
+            resultImage.style.display = 'none';
+            downloadBtn.style.display = 'none';
+            placeholderText.style.display = 'none';
+            generateBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/enhance-image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        input_image: uploadedImageBase64,
+                        description: description,
+                        strength: strength,
+                        size: size
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Show result
+                    resultImage.src = `data:image/png;base64,${data.image}`;
+                    resultImage.style.display = 'block';
+                    downloadBtn.style.display = 'block';
+                    
+                    // Setup download
+                    downloadBtn.onclick = () => {
+                        const link = document.createElement('a');
+                        link.href = `data:image/png;base64,${data.image}`;
+                        link.download = `enhanced-product-${Date.now()}.png`;
+                        link.click();
+                    };
+                } else {
+                    showError(data.error || 'Enhancement failed');
+                }
+            } catch (error) {
+                showError(`Error: ${error.message}`);
+            } finally {
+                loading.style.display = 'none';
+                generateBtn.disabled = false;
+            }
+        });
+
+        function showError(message) {
+            errorMessage.textContent = '❌ ' + message;
+            errorMessage.style.display = 'block';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
